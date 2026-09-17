@@ -17,7 +17,7 @@ module WebXR exposing
     , isWebXRAvailable
     )
 
-{-| Elm interface to the WebXR JavaScfipt library.
+{-| Elm interface to the WebXR JavaScript library.
 -}
 
 import Json.Decode as JD exposing (Decoder)
