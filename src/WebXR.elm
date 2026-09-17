@@ -14,9 +14,28 @@
 module WebXR exposing
     ( SessionType(..)
     , isSessionSupported
+    , isWebXRAvailable
     )
 
+{-| Elm interface to the WebXR JavaScfipt library.
+-}
 
+import Json.Decode as JD exposing (Decoder)
+import Json.Encode as JE exposing (Value)
+import Task exposing (Task)
+
+
+type XRError
+    = IllegalSessionRequest String
+    | XRErrorString String
+
+
+type alias SessionTask a =
+    Task XRError a
+
+
+{-| Type of a WebXR session.
+-}
 type SessionType
     = ImmersiveVR
     | ImmersiveAR
@@ -36,7 +55,29 @@ sessionTypeName sessionType =
             "inline"
 
 
-isSessionSupported : SessionType -> SessionType
+{-| True if the browser supports WebXR.
+-}
+isWebXRAvailable : SessionTask Bool
+isWebXRAvailable =
+    -- TODO
+    Task.fail <| XRErrorString "isWebXRAvailable: TODO"
+
+
+{-| True if the WebXR implementation currently supports the given SessionType.
+
+If true, `requestSession` will succeed.
+
+-}
+isSessionSupported : SessionType -> SessionTask Bool
 isSessionSupported sessionType =
     -- TODO
-    sessionType
+    Task.fail <| XRErrorString "isSessionSupported: TODO"
+
+
+type alias XRSession =
+    { json : Value }
+
+
+requestSession : SessionType -> SessionTask XRSession
+requestSession sessionType =
+    Task.fail <| XRErrorString "requestSession: TODO"
