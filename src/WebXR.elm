@@ -12,12 +12,18 @@
 
 
 module WebXR exposing
-    ( SessionType(..)
-    , isSessionSupported
-    , isWebXRAvailable
+    ( isWebXRAvailable, isSessionSupported, requestSession
+    , SessionType(..)
     )
 
 {-| Elm interface to the WebXR JavaScript library.
+
+@docs isWebXRAvailable, isSessionSupported, requestSession
+
+Types:
+
+@docs SessionType
+
 -}
 
 import Json.Decode as JD exposing (Decoder)
@@ -78,6 +84,8 @@ type alias XRSession =
     { json : Value }
 
 
+{-| Create a session of the given type.
+-}
 requestSession : SessionType -> SessionTask XRSession
 requestSession sessionType =
     Task.fail <| XRErrorString "requestSession: TODO"
