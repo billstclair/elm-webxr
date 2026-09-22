@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo "Building library."
+elm make
+
+echo "Building docs.json."
+elm make --docs docs.json
+
+
