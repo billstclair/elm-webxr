@@ -29,6 +29,7 @@ Types:
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Task exposing (Task)
+import WebXR.PortDispatch exposing (Command(..), SessionType(..), dispatch)
 
 
 type XRError
