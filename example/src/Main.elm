@@ -43,7 +43,7 @@ subscriptions model =
 port webXRIn : Value -> Cmd msg
 
 
-port webXROut : (JD.Value -> msg) -> Sub msg
+port webXROut : (Value -> msg) -> Sub msg
 
 
 main =
