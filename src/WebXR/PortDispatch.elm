@@ -94,16 +94,35 @@ portValueDecoder =
         |> required "value" JD.value
 
 
+type alias WebXRPair =
+    { command : String
+    , value : Value
+    }
 
-{--TODO
-   commandToValue : Command -> Value -> Result String Value
-   commandToValue command value =
-           case command of
-               ISWebXRAvailable ->
-                   "IsWebXRAvailable"
-               IsSessionSupported ->
-                   case valueToSessionType value of
--}
+
+commandToValue : Command -> Value -> Value
+commandToValue command value =
+    let
+        ( str, val ) =
+            case command of
+                IsWebXRAvailable ->
+                    ( "IsWebXRAvailable", JE.null )
+
+                IsSessionSupported ->
+                    ( "IsSessionSupported", value )
+
+                RequestSession ->
+                    ( "RequestSession", value )
+    in
+    WebXRPair str val |> encodeWebXRPair
+
+
+encodeWebXRPair : WebXRPair -> Value
+encodeWebXRPair { command, value } =
+    JE.object
+        [ ( "command", JE.string command )
+        , ( "value", value )
+        ]
 
 
 type alias Config msg =
@@ -114,6 +133,6 @@ type alias Config msg =
 
 {-| Send a command to the backend.
 -}
-dispatch : Config msg -> Command -> Value -> Task String ()
-dispatch config command value =
-    Task.fail "dispatch TODO."
+dispatch : Config msg -> Command -> Value -> Cmd msg
+dispatch { outPort } command value =
+    commandToValue command value |> outPort
