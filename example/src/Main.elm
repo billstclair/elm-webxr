@@ -7,19 +7,30 @@ import Json.Decode as JD
 import Json.Encode as JE exposing (Value)
 import Task
 import Time
+import WebXR.PortDispatch exposing (Command(..), Config, SessionType(..))
 
 
 type alias Model =
-    { filler : Int }
+    { config : Config Msg }
 
 
 type Msg
     = Nop
 
 
+port outPort : Value -> Cmd msg
+
+
+port inPort : (Value -> msg) -> Sub msg
+
+
 init : Value -> ( Model, Cmd Msg )
 init _ =
-    ( { filler = 0 }
+    ( { config =
+            { outPort = outPort
+            , inPort = inPort
+            }
+      }
     , Cmd.none
     )
 

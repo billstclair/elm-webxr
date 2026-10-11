@@ -5148,11 +5148,16 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $elm$json$Json$Decode$value = _Json_decodeValue;
+var $author$project$Main$inPort = _Platform_incomingPort('inPort', $elm$json$Json$Decode$value);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
+var $author$project$Main$outPort = _Platform_outgoingPort('outPort', $elm$core$Basics$identity);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
-		{filler: 0},
+		{
+			config: {inPort: $author$project$Main$inPort, outPort: $author$project$Main$outPort}
+		},
 		$elm$core$Platform$Cmd$none);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5164,7 +5169,6 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 	});
-var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$view = function (model) {

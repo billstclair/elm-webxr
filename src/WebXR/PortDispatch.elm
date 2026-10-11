@@ -10,7 +10,7 @@
 ----------------------------------------------------------------------
 
 
-module WebXR.PortDispatch exposing (Command(..), SessionType(..), dispatch)
+module WebXR.PortDispatch exposing (Command(..), Config, SessionType(..), dispatch)
 
 {-| Dispatch to port JavaScript code.
 -}
