@@ -26,10 +26,10 @@ type Msg
     | OnUrlChange Url
 
 
-port outPort : Value -> Cmd msg
+port webXROut : Value -> Cmd msg
 
 
-port inPort : (Value -> msg) -> Sub msg
+port webXRIn : (Value -> msg) -> Sub msg
 
 
 port openWindow : Value -> Cmd msg
@@ -38,8 +38,8 @@ port openWindow : Value -> Cmd msg
 init : Value -> Url -> Key -> ( Model, Cmd Msg )
 init flags url key =
     { config =
-        { outPort = outPort
-        , inPort = inPort
+        { outPort = webXROut
+        , inPort = webXRIn
         }
     , url = url
     , key = key
@@ -78,12 +78,6 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     -- TODO
     Sub.none
-
-
-port webXRIn : Value -> Cmd msg
-
-
-port webXROut : (Value -> msg) -> Sub msg
 
 
 main =

@@ -5156,8 +5156,8 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$application = _Browser_application;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
-var $author$project$Main$inPort = _Platform_incomingPort('inPort', $elm$json$Json$Decode$value);
-var $author$project$Main$outPort = _Platform_outgoingPort('outPort', $elm$core$Basics$identity);
+var $author$project$Main$webXRIn = _Platform_incomingPort('webXRIn', $elm$json$Json$Decode$value);
+var $author$project$Main$webXROut = _Platform_outgoingPort('webXROut', $elm$core$Basics$identity);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $Janiczek$cmd_extra$Cmd$Extra$withNoCmd = function (model) {
@@ -5167,7 +5167,7 @@ var $author$project$Main$init = F3(
 	function (flags, url, key) {
 		return $Janiczek$cmd_extra$Cmd$Extra$withNoCmd(
 			{
-				config: {inPort: $author$project$Main$inPort, outPort: $author$project$Main$outPort},
+				config: {inPort: $author$project$Main$webXRIn, outPort: $author$project$Main$webXROut},
 				key: key,
 				url: url
 			});
