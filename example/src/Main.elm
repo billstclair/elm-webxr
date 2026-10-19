@@ -1,21 +1,29 @@
 port module Main exposing (..)
 
-import Browser
+import Browser exposing (Document, UrlRequest(..))
+import Browser.Navigation as Navigation exposing (Key)
+import Cmd.Extra exposing (addCmd, withCmd, withCmds, withNoCmd)
 import Html exposing (Html)
 import Html.Events
 import Json.Decode as JD
 import Json.Encode as JE exposing (Value)
 import Task
 import Time
+import Url exposing (Url)
 import WebXR.PortDispatch exposing (Command(..), Config, SessionType(..))
 
 
 type alias Model =
-    { config : Config Msg }
+    { config : Config Msg
+    , url : Url
+    , key : Key
+    }
 
 
 type Msg
     = Nop
+    | OnUrlRequest UrlRequest
+    | OnUrlChange Url
 
 
 port outPort : Value -> Cmd msg
@@ -24,25 +32,46 @@ port outPort : Value -> Cmd msg
 port inPort : (Value -> msg) -> Sub msg
 
 
-init : Value -> ( Model, Cmd Msg )
-init _ =
-    ( { config =
-            { outPort = outPort
-            , inPort = inPort
-            }
-      }
-    , Cmd.none
-    )
+port openWindow : Value -> Cmd msg
+
+
+init : Value -> Url -> Key -> ( Model, Cmd Msg )
+init flags url key =
+    { config =
+        { outPort = outPort
+        , inPort = inPort
+        }
+    , url = url
+    , key = key
+    }
+        |> withNoCmd
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        OnUrlChange url ->
+            model |> withNoCmd
+
+        OnUrlRequest urlRequest ->
+            case urlRequest of
+                External url ->
+                    model |> withCmd (openWindow <| JE.string url)
+
+                Internal url ->
+                    model |> withNoCmd
+
+        Nop ->
+            ( model, Cmd.none )
 
 
-view : Model -> Html Msg
+view : Model -> Document Msg
 view model =
-    Html.text "Hello, World!"
+    { title = "WebXR Example"
+    , body =
+        [ Html.text "Hello, World!"
+        ]
+    }
 
 
 subscriptions : Model -> Sub Msg
@@ -58,9 +87,11 @@ port webXROut : (Value -> msg) -> Sub msg
 
 
 main =
-    Browser.element
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = subscriptions
+        , onUrlRequest = OnUrlRequest
+        , onUrlChange = OnUrlChange
         }

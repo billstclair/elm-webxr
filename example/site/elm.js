@@ -134,8 +134,7 @@ function _Utils_eqHelp(x, y, depth, stack)
 	}
 	//*/
 
-	for (var key in x)
-	{
+	for (var __keys_key = Object.keys(x), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
 		{
 			return false;
@@ -222,13 +221,11 @@ function _Utils_update(oldRecord, updatedFields)
 {
 	var newRecord = {};
 
-	for (var key in oldRecord)
-	{
+	for (var __keys_key = Object.keys(oldRecord), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		newRecord[key] = oldRecord[key];
 	}
 
-	for (var key in updatedFields)
-	{
+	for (var __keys_key = Object.keys(updatedFields), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		newRecord[key] = updatedFields[key];
 	}
 
@@ -579,8 +576,7 @@ function _Debug_toAnsiString(ansi, value)
 		if (tag[0] === '#')
 		{
 			var output = [];
-			for (var k in value)
-			{
+			for (var __keys_k = Object.keys(value), __i_k = 0; __i_k < __keys_k.length; __i_k++) { var k = __keys_k[__i_k];
 				if (k === '$') continue;
 				output.push(_Debug_toAnsiString(ansi, value[k]));
 			}
@@ -622,8 +618,7 @@ function _Debug_toAnsiString(ansi, value)
 		}
 
 		var output = '';
-		for (var i in value)
-		{
+		for (var __keys_i = Object.keys(value), __i_i = 0; __i_i < __keys_i.length; __i_i++) { var i = __keys_i[__i_i];
 			if (i === '$') continue;
 			var str = _Debug_toAnsiString(ansi, value[i]);
 			var c0 = str[0];
@@ -646,8 +641,7 @@ function _Debug_toAnsiString(ansi, value)
 	if (typeof value === 'object')
 	{
 		var output = [];
-		for (var key in value)
-		{
+		for (var __keys_key = Object.keys(value), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 			var field = key[0] === '_' ? key.slice(1) : key;
 			output.push(_Debug_fadeColor(ansi, field) + ' = ' + _Debug_toAnsiString(ansi, value[key]));
 		}
@@ -1456,8 +1450,7 @@ function _Json_runHelp(decoder, value)
 
 			var keyValuePairs = _List_Nil;
 			// TODO test perf of Object.keys and switch when support is good enough
-			for (var key in value)
-			{
+			for (var __keys_key = Object.keys(value), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 				if (Object.prototype.hasOwnProperty.call(value, key))
 				{
 					var result = _Json_runHelp(decoder.b, value[key]);
@@ -1925,8 +1918,7 @@ function _Platform_setupEffects(managers, sendToApp)
 	var ports;
 
 	// setup all necessary effect managers
-	for (var key in _Platform_effectManagers)
-	{
+	for (var __keys_key = Object.keys(_Platform_effectManagers), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		var manager = _Platform_effectManagers[key];
 
 		if (manager.a)
@@ -2101,8 +2093,7 @@ function _Platform_dispatchEffects(managers, cmdBag, subBag)
 	_Platform_gatherEffects(true, cmdBag, effectsDict, null);
 	_Platform_gatherEffects(false, subBag, effectsDict, null);
 
-	for (var home in managers)
-	{
+	for (var __keys_home = Object.keys(managers), __i_home = 0; __i_home < __keys_home.length; __i_home++) { var home = __keys_home[__i_home];
 		_Scheduler_rawSend(managers[home], {
 			$: 'fx',
 			a: effectsDict[home] || { i: _List_Nil, j: _List_Nil }
@@ -2330,8 +2321,7 @@ function _Platform_export_UNUSED(exports)
 
 function _Platform_mergeExportsProd(obj, exports)
 {
-	for (var name in exports)
-	{
+	for (var __keys_name = Object.keys(exports), __i_name = 0; __i_name < __keys_name.length; __i_name++) { var name = __keys_name[__i_name];
 		(name in obj)
 			? (name == 'init')
 				? _Debug_crash(6)
@@ -2351,8 +2341,7 @@ function _Platform_export(exports)
 
 function _Platform_mergeExportsDebug(moduleName, obj, exports)
 {
-	for (var name in exports)
-	{
+	for (var __keys_name = Object.keys(exports), __i_name = 0; __i_name < __keys_name.length; __i_name++) { var name = __keys_name[__i_name];
 		(name in obj)
 			? (name == 'init')
 				? _Debug_crash(6, moduleName)
@@ -2622,45 +2611,64 @@ var _VirtualDom_attributeNS = F3(function(namespace, key, value)
 
 
 // XSS ATTACK VECTOR CHECKS
+//
+// For some reason, tabs can appear in href protocols and it still works.
+// So '\tjava\tSCRIPT:alert("!!!")' and 'javascript:alert("!!!")' are the same
+// in practice. That is why _VirtualDom_RE_js and _VirtualDom_RE_js_html look
+// so freaky.
+//
+// Pulling the regular expressions out to the top level gives a slight speed
+// boost in small benchmarks (4-10%) but hoisting values to reduce allocation
+// can be unpredictable in large programs where JIT may have a harder time with
+// functions are not fully self-contained. The benefit is more that the js and
+// js_html ones are so weird that I prefer to see them near each other.
+
+
+var _VirtualDom_RE_script = /^script$/i;
+var _VirtualDom_RE_on_formAction = /^(on|formAction$)/i;
+var _VirtualDom_RE_js = /^\s*j\s*a\s*v\s*a\s*s\s*c\s*r\s*i\s*p\s*t\s*:/i;
+var _VirtualDom_RE_js_html = /^\s*(j\s*a\s*v\s*a\s*s\s*c\s*r\s*i\s*p\s*t\s*:|d\s*a\s*t\s*a\s*:\s*t\s*e\s*x\s*t\s*\/\s*h\s*t\s*m\s*l\s*(,|;))/i;
 
 
 function _VirtualDom_noScript(tag)
 {
-	return tag == 'script' ? 'p' : tag;
+	return _VirtualDom_RE_script.test(tag) ? 'p' : tag;
 }
 
 function _VirtualDom_noOnOrFormAction(key)
 {
-	return /^(on|formAction$)/i.test(key) ? 'data-' + key : key;
+	return _VirtualDom_RE_on_formAction.test(key) ? 'data-' + key : key;
 }
 
 function _VirtualDom_noInnerHtmlOrFormAction(key)
 {
-	return key == 'innerHTML' || key == 'formAction' ? 'data-' + key : key;
-}
-
-function _VirtualDom_noJavaScriptUri_UNUSED(value)
-{
-	return /^javascript:/i.test(value.replace(/\s/g,'')) ? '' : value;
+	return key == 'innerHTML' || key == 'outerHTML' || key == 'formAction' ? 'data-' + key : key;
 }
 
 function _VirtualDom_noJavaScriptUri(value)
 {
-	return /^javascript:/i.test(value.replace(/\s/g,''))
-		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
+	return _VirtualDom_RE_js.test(value)
+		? /**_UNUSED/''//*//**/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
-}
-
-function _VirtualDom_noJavaScriptOrHtmlUri_UNUSED(value)
-{
-	return /^\s*(javascript:|data:text\/html)/i.test(value) ? '' : value;
 }
 
 function _VirtualDom_noJavaScriptOrHtmlUri(value)
 {
-	return /^\s*(javascript:|data:text\/html)/i.test(value)
-		? 'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'
+	return _VirtualDom_RE_js_html.test(value)
+		? /**_UNUSED/''//*//**/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
 		: value;
+}
+
+function _VirtualDom_noJavaScriptOrHtmlJson(value)
+{
+	return (
+		(typeof _Json_unwrap(value) === 'string' && _VirtualDom_RE_js_html.test(_Json_unwrap(value)))
+		||
+		(Array.isArray(_Json_unwrap(value)) && _VirtualDom_RE_js_html.test(String(_Json_unwrap(value))))
+	)
+		? _Json_wrap(
+			/**_UNUSED/''//*//**/'javascript:alert("This is an XSS vector. Please use ports or web components instead.")'//*/
+		) : value;
 }
 
 
@@ -2827,8 +2835,7 @@ function _VirtualDom_render(vNode, eventNode)
 
 function _VirtualDom_applyFacts(domNode, eventNode, facts)
 {
-	for (var key in facts)
-	{
+	for (var __keys_key = Object.keys(facts), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		var value = facts[key];
 
 		key === 'a1'
@@ -2856,8 +2863,7 @@ function _VirtualDom_applyStyles(domNode, styles)
 {
 	var domNodeStyle = domNode.style;
 
-	for (var key in styles)
-	{
+	for (var __keys_key = Object.keys(styles), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		domNodeStyle[key] = styles[key];
 	}
 }
@@ -2869,8 +2875,7 @@ function _VirtualDom_applyStyles(domNode, styles)
 
 function _VirtualDom_applyAttrs(domNode, attrs)
 {
-	for (var key in attrs)
-	{
+	for (var __keys_key = Object.keys(attrs), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		var value = attrs[key];
 		typeof value !== 'undefined'
 			? domNode.setAttribute(key, value)
@@ -2885,8 +2890,7 @@ function _VirtualDom_applyAttrs(domNode, attrs)
 
 function _VirtualDom_applyAttrsNS(domNode, nsAttrs)
 {
-	for (var key in nsAttrs)
-	{
+	for (var __keys_key = Object.keys(nsAttrs), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		var pair = nsAttrs[key];
 		var namespace = pair.f;
 		var value = pair.o;
@@ -2906,8 +2910,7 @@ function _VirtualDom_applyEvents(domNode, eventNode, events)
 {
 	var allCallbacks = domNode.elmFs || (domNode.elmFs = {});
 
-	for (var key in events)
-	{
+	for (var __keys_key = Object.keys(events), __i_key = 0; __i_key < __keys_key.length; __i_key++) { var key = __keys_key[__i_key];
 		var newHandler = events[key];
 		var oldCallback = allCallbacks[key];
 
@@ -3223,8 +3226,7 @@ function _VirtualDom_diffFacts(x, y, category)
 	var diff;
 
 	// look for changes and removals
-	for (var xKey in x)
-	{
+	for (var __keys_xKey = Object.keys(x), __i_xKey = 0; __i_xKey < __keys_xKey.length; __i_xKey++) { var xKey = __keys_xKey[__i_xKey];
 		if (xKey === 'a1' || xKey === 'a0' || xKey === 'a3' || xKey === 'a4')
 		{
 			var subDiff = _VirtualDom_diffFacts(x[xKey], y[xKey] || {}, xKey);
@@ -3270,8 +3272,7 @@ function _VirtualDom_diffFacts(x, y, category)
 	}
 
 	// add new stuff
-	for (var yKey in y)
-	{
+	for (var __keys_yKey = Object.keys(y), __i_yKey = 0; __i_yKey < __keys_yKey.length; __i_yKey++) { var yKey = __keys_yKey[__i_yKey];
 		if (!(yKey in x))
 		{
 			diff = diff || {};
@@ -4359,6 +4360,12 @@ function _Browser_load(url)
 		}
 	}));
 }
+var $author$project$Main$OnUrlChange = function (a) {
+	return {$: 'OnUrlChange', a: a};
+};
+var $author$project$Main$OnUrlRequest = function (a) {
+	return {$: 'OnUrlRequest', a: a};
+};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5147,33 +5154,69 @@ var $elm$core$Task$perform = F2(
 			$elm$core$Task$Perform(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
-var $elm$browser$Browser$element = _Browser_element;
+var $elm$browser$Browser$application = _Browser_application;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$inPort = _Platform_incomingPort('inPort', $elm$json$Json$Decode$value);
+var $author$project$Main$outPort = _Platform_outgoingPort('outPort', $elm$core$Basics$identity);
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$outPort = _Platform_outgoingPort('outPort', $elm$core$Basics$identity);
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(
-		{
-			config: {inPort: $author$project$Main$inPort, outPort: $author$project$Main$outPort}
-		},
-		$elm$core$Platform$Cmd$none);
+var $Janiczek$cmd_extra$Cmd$Extra$withNoCmd = function (model) {
+	return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 };
+var $author$project$Main$init = F3(
+	function (flags, url, key) {
+		return $Janiczek$cmd_extra$Cmd$Extra$withNoCmd(
+			{
+				config: {inPort: $author$project$Main$inPort, outPort: $author$project$Main$outPort},
+				key: key,
+				url: url
+			});
+	});
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Main$openWindow = _Platform_outgoingPort('openWindow', $elm$core$Basics$identity);
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $Janiczek$cmd_extra$Cmd$Extra$withCmd = F2(
+	function (cmd, model) {
+		return _Utils_Tuple2(model, cmd);
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+		switch (msg.$) {
+			case 'OnUrlChange':
+				var url = msg.a;
+				return $Janiczek$cmd_extra$Cmd$Extra$withNoCmd(model);
+			case 'OnUrlRequest':
+				var urlRequest = msg.a;
+				if (urlRequest.$ === 'External') {
+					var url = urlRequest.a;
+					return A2(
+						$Janiczek$cmd_extra$Cmd$Extra$withCmd,
+						$author$project$Main$openWindow(
+							$elm$json$Json$Encode$string(url)),
+						model);
+				} else {
+					var url = urlRequest.a;
+					return $Janiczek$cmd_extra$Cmd$Extra$withNoCmd(model);
+				}
+			default:
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+		}
 	});
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$view = function (model) {
-	return $elm$html$Html$text('Hello, World!');
+	return {
+		body: _List_fromArray(
+			[
+				$elm$html$Html$text('Hello, World!')
+			]),
+		title: 'WebXR Example'
+	};
 };
-var $author$project$Main$main = $elm$browser$Browser$element(
-	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
+var $author$project$Main$main = $elm$browser$Browser$application(
+	{init: $author$project$Main$init, onUrlChange: $author$project$Main$OnUrlChange, onUrlRequest: $author$project$Main$OnUrlRequest, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main($elm$json$Json$Decode$value)(0)}});}(this));
