@@ -11,25 +11,19 @@
 ----------------------------------------------------------------------
 
 
-module WebXR exposing
-    ( isWebXRAvailable, isSessionSupported, requestSession
-    , SessionType(..)
-    )
+module WebXR exposing (isWebXRAvailable, isSessionSupported, requestSession)
 
 {-| Elm interface to the WebXR JavaScript library.
 
 @docs isWebXRAvailable, isSessionSupported, requestSession
-
-Types:
-
-@docs SessionType
 
 -}
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Task exposing (Task)
-import WebXR.PortDispatch exposing (Command(..), SessionType(..), dispatch)
+import WebXR.PortDispatch exposing (dispatch)
+import WebXR.Types exposing (Command(..), Config, SessionType(..))
 
 
 type XRError
@@ -39,27 +33,6 @@ type XRError
 
 type alias SessionTask a =
     Task XRError a
-
-
-{-| Type of a WebXR session.
--}
-type SessionType
-    = ImmersiveVR
-    | ImmersiveAR
-    | Inline
-
-
-sessionTypeName : SessionType -> String
-sessionTypeName sessionType =
-    case sessionType of
-        ImmersiveVR ->
-            "immersive-vr"
-
-        ImmersiveAR ->
-            "immersive-ar"
-
-        Inline ->
-            "inline"
 
 
 {-| True if the browser supports WebXR.

@@ -10,7 +10,7 @@
 ----------------------------------------------------------------------
 
 
-module WebXR.PortDispatch exposing (Command(..), Config, SessionType(..), dispatch)
+module WebXR.PortDispatch exposing (dispatch)
 
 {-| Dispatch to port JavaScript code.
 -}
@@ -19,24 +19,7 @@ import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as DP exposing (custom, hardcoded, optional, required)
 import Json.Encode as JE exposing (Value)
 import Task exposing (Task)
-
-
-{-| WebXR Command
--}
-type Command
-    = IsWebXRAvailable
-    | IsSessionSupported
-    | RequestSession
-
-
-
-{- WebXR Session Type -}
-
-
-type SessionType
-    = Inline
-    | ImmersiveVR
-    | ImmersiveAR
+import WebXR.Types exposing (Command(..), Config, SessionType(..))
 
 
 sessionTypeToValue : SessionType -> Value
@@ -123,12 +106,6 @@ encodeWebXRPair { command, value } =
         [ ( "command", JE.string command )
         , ( "value", value )
         ]
-
-
-type alias Config msg =
-    { outPort : Value -> Cmd msg
-    , inPort : (Value -> msg) -> Sub msg
-    }
 
 
 {-| Send a command to the backend.

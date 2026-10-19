@@ -10,7 +10,8 @@ import Json.Encode as JE exposing (Value)
 import Task
 import Time
 import Url exposing (Url)
-import WebXR.PortDispatch exposing (Command(..), Config, SessionType(..))
+import WebXR.PortDispatch
+import WebXR.Types exposing (Command(..), Config, SessionType(..))
 
 
 type alias Model =
