@@ -12,7 +12,7 @@
 (function(scope) {
 
   WebXR = {};
-  scope.WebXR = WebXr;
+  scope.WebXR = WebXR;
 
   WebXR.subscribe = subscribe;  // called by HTML file
   WebXR.sub = null;             // see below (in subscribe)
@@ -51,6 +51,7 @@
         return err('command not an object');
       }
     }
+  }
 
 })(this);
 
