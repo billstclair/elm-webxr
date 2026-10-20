@@ -37,7 +37,8 @@
       </p>
     </noscript>
     <script>
-    var app = Elm.Main.init({ node: document.querySelector('main') });
+      var app = Elm.Main.init({ node: document.querySelector('main') });
+      WebXR.subscribe(app); // hook up the WebXR ports
   </script>
 </body>
 </html>

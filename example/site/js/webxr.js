@@ -32,27 +32,47 @@
       if (cmd) {
         cmd.subscribe(function(command) {
           var returnValue = commandDispatch(command);
-          if (returnValue) {
+          if (returnValue != undefined) {
             sub.send(returnValue);
           }
         });
       }
     }
+  }
 
-    function err(str) {
-      return { "error": str };
+  function err(str) {
+    return { "error": str };
+  }
+
+  // command = { "command": <string>,
+  //             "value": <value>
+  //           }
+  function commandDispatch(cmd) {
+    if (typeof(cmd) != 'object') {
+      return err('cmd not an object');
     }
-
-    // command = { "command": <string>,
-    //             "value": <value>
-    //           }
-    function commandDispatch(command) {
-      if (typeof(command) != 'object') {
-        return err('command not an object');
+    var command = cmd.command;
+    if (command == "IsWebXRAvailable") {
+      if (navigator.xr) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      var xr = navigator.xr;
+      var res;
+      if (!xr) {
+        console.log('Browser does not support WebXR');
+        return err('Browser does not support WebXR')
+      } else if (command == 'IsSessionSupported') {
+        console.log('IsSessionSuported(', cmd.value, ')');
+        return xr.isSessionSupported(cmd.value);
+      } else if (command == 'RequestSession') {
+        console.log('RequestSession(', cmd.value, ')');
+        return xr.requestSession(cmd.value);
       }
     }
   }
-
 })(this);
 
 
