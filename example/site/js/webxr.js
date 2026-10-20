@@ -60,7 +60,6 @@
       }
     } else {
       var xr = navigator.xr;
-      var res;
       if (!xr) {
         console.log('Browser does not support WebXR');
         return err('Browser does not support WebXR')
