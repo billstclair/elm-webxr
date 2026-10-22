@@ -53,11 +53,7 @@
     }
     var command = cmd.command;
     if (command == "IsWebXRAvailable") {
-      if (navigator.xr) {
-        return true;
-      } else {
-        return false;
-      }
+      return navigator.xr ? true : false;
     } else {
       var xr = navigator.xr;
       if (!xr) {
@@ -65,10 +61,20 @@
         return err('Browser does not support WebXR')
       } else if (command == 'IsSessionSupported') {
         console.log('IsSessionSuported(', cmd.value, ')');
-        return xr.isSessionSupported(cmd.value);
+        return isSessionSupported(cmd.value);
       } else if (command == 'RequestSession') {
         console.log('RequestSession(', cmd.value, ')');
+        // TODO
         return xr.requestSession(cmd.value);
+      }
+
+      function isSessionSupported(sessionType) {
+        var val;
+        xr.isSessionSupported(sessionType).then(
+          function(res) {
+            val = res;
+          })
+        return val;
       }
     }
   }
