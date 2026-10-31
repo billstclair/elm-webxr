@@ -26,22 +26,33 @@
     var ports = app.ports;
     if (ports) {
       var sub = ports[portNames[1]];
+      // send: { "command": { command: <string>,
+      //                    value: <value>
+      //                  },
+      //         "return": <value>
+      //         "error": <string>
+      //       }
+      // "return" or "error" is included, but not both.
       WebXR.sub = sub;
 
-      var cmd = ports[portNames[0]];
-      if (cmd) {
-        cmd.subscribe(function(command) {
-          var returnValue = commandDispatch(command);
-          if (returnValue != undefined) {
-            sub.send(returnValue);
-          }
-        });
+      if (sub) {
+        var cmd = ports[portNames[0]];
+        if (cmd) {
+          cmd.subscribe(function(command) {
+            var returnValue = commandDispatch(command);
+            if (returnValue != undefined) {
+              sub.send(returnValue);
+            }
+          });
+        }
       }
     }
   }
 
-  function err(str) {
-    return { "error": str };
+  function err(cmd, str) {
+    return { "command": cmd,
+             "error": str
+           };
   }
 
   // command = { "command": <string>,
@@ -49,23 +60,30 @@
   //           }
   function commandDispatch(cmd) {
     if (typeof(cmd) != 'object') {
-      return err('cmd not an object');
+      return err(cmd, 'cmd not an object');
     }
     var command = cmd.command;
     if (command == "IsWebXRAvailable") {
-      return navigator.xr ? true : false;
+      return packageReturn(cmd, navigator.xr ? true : false);
     } else {
       var xr = navigator.xr;
       if (!xr) {
         console.log('Browser does not support WebXR');
-        return err('Browser does not support WebXR')
+        return err(cmd, 'Browser does not support WebXR')
       } else if (command == 'IsSessionSupported') {
         console.log('IsSessionSuported(', cmd.value, ')');
-        return isSessionSupported(cmd.value);
+        return packageReturn(cmd, isSessionSupported(cmd.value));
       } else if (command == 'RequestSession') {
         console.log('RequestSession(', cmd.value, ')');
         // TODO
-        return xr.requestSession(cmd.value);
+        return err(cmd, 'RequestSession not yet implemented');
+        //return xr.requestSession(cmd.value);
+      }
+
+      function packageReturn(cmd, value) {
+        return { "command": cmd,
+                 "value": value
+               };
       }
 
       function isSessionSupported(sessionType) {
