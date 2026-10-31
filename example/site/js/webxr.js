@@ -55,6 +55,13 @@
            };
   }
 
+  // As expected by Elm code
+  function packageReturn(cmd, value) {
+    return { "command": cmd,
+             "value": value
+           };
+  }
+
   // command = { "command": <string>,
   //             "value": <value>
   //           }
@@ -78,12 +85,6 @@
         // TODO
         return err(cmd, 'RequestSession not yet implemented');
         //return xr.requestSession(cmd.value);
-      }
-
-      function packageReturn(cmd, value) {
-        return { "command": cmd,
-                 "value": value
-               };
       }
 
       function isSessionSupported(sessionType) {

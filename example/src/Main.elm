@@ -109,6 +109,13 @@ update msg model =
 
 view : Model -> Document Msg
 view model =
+    { title = "WebXR Example"
+    , body =
+        [ Html.text "Hello, World!"
+        ]
+    }
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
     -- TODO
