@@ -79,7 +79,7 @@ type alias ReturnValue =
     }
 
 
-{-| Error sent from the JS code to the `Config.inport`.
+{-| Error sent from the JS code to the `Config.inPort`.
 -}
 type alias ReturnError =
     { command : ReturnValueCommand
@@ -130,7 +130,7 @@ returnErrorDecoder =
         |> required "error" JD.string
 
 
-{-| Decode the `Value` sent to `Config.inport`.
+{-| Decode the `Value` sent to `Config.inPort`.
 -}
 decodeReturnValue : Value -> Result ReturnError ReturnValue
 decodeReturnValue value =
