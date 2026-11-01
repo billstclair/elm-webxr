@@ -3,7 +3,7 @@ port module Main exposing (..)
 import Browser exposing (Document, UrlRequest(..))
 import Browser.Navigation as Navigation exposing (Key)
 import Cmd.Extra exposing (addCmd, withCmd, withCmds, withNoCmd)
-import Html exposing (Html)
+import Html exposing (Html, text)
 import Html.Events
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -18,9 +18,17 @@ type alias ReturnFunction =
     WrappedModel -> Value -> ( WrappedModel, Cmd Msg )
 
 
+type alias SupportedSessions =
+    { inline : Maybe Bool
+    , immersiveVR : Maybe Bool
+    , immersiveAR : Maybe Bool
+    }
+
+
 type alias Model =
     { config : Config Msg
     , webxrIsAvailable : Bool
+    , supportedSessions : SupportedSessions
     , returnFunction : WrappedModel -> Value -> ( WrappedModel, Cmd Msg )
     , url : Url
     , key : Key
@@ -71,8 +79,125 @@ isAvailableReturnFunction wm v =
                                 Ok b ->
                                     b
                     in
-                    WrappedModel { model | webxrIsAvailable = bool }
-                        -- TODO
+                    WrappedModel
+                        { model
+                            | webxrIsAvailable = bool
+                            , returnFunction = isInlineSessionSupportedReturnFunction
+                        }
+                        |> withCmd (WebXR.isSessionSupported model.config Inline)
+
+
+isInlineSessionSupportedReturnFunction : WrappedModel -> Value -> ( WrappedModel, Cmd Msg )
+isInlineSessionSupportedReturnFunction wm v =
+    let
+        vv =
+            logValue "isInlineSessionSupportedReturnFunction" v
+    in
+    case wm of
+        WrappedModel model ->
+            case WebXR.decodeReturnValue vv of
+                Err { error } ->
+                    let
+                        error2 =
+                            Debug.log "  Error" error
+                    in
+                    wm |> withNoCmd
+
+                Ok { value } ->
+                    let
+                        bool =
+                            case JD.decodeValue JD.bool value of
+                                Err _ ->
+                                    False
+
+                                Ok b ->
+                                    b
+
+                        supportedSessions =
+                            model.supportedSessions
+                    in
+                    WrappedModel
+                        { model
+                            | supportedSessions =
+                                { supportedSessions | inline = Just bool }
+                            , returnFunction = isImmersiveVRSessionSupportedReturnFunction
+                        }
+                        |> withCmd (WebXR.isSessionSupported model.config ImmersiveVR)
+
+
+isImmersiveVRSessionSupportedReturnFunction : WrappedModel -> Value -> ( WrappedModel, Cmd Msg )
+isImmersiveVRSessionSupportedReturnFunction wm v =
+    let
+        vv =
+            logValue "isImmersiveVRSessionSupportedReturnFunction" v
+    in
+    case wm of
+        WrappedModel model ->
+            case WebXR.decodeReturnValue vv of
+                Err { error } ->
+                    let
+                        error2 =
+                            Debug.log "  Error" error
+                    in
+                    wm |> withNoCmd
+
+                Ok { value } ->
+                    let
+                        bool =
+                            case JD.decodeValue JD.bool value of
+                                Err _ ->
+                                    False
+
+                                Ok b ->
+                                    b
+
+                        supportedSessions =
+                            model.supportedSessions
+                    in
+                    WrappedModel
+                        { model
+                            | supportedSessions =
+                                { supportedSessions | immersiveVR = Just bool }
+                            , returnFunction = isImmersiveARSessionSupportedReturnFunction
+                        }
+                        |> withCmd (WebXR.isSessionSupported model.config ImmersiveAR)
+
+
+isImmersiveARSessionSupportedReturnFunction : WrappedModel -> Value -> ( WrappedModel, Cmd Msg )
+isImmersiveARSessionSupportedReturnFunction wm v =
+    let
+        vv =
+            logValue "isImmersiveARSessionSupportedReturnFunction" v
+    in
+    case wm of
+        WrappedModel model ->
+            case WebXR.decodeReturnValue vv of
+                Err { error } ->
+                    let
+                        error2 =
+                            Debug.log "  Error" error
+                    in
+                    wm |> withNoCmd
+
+                Ok { value } ->
+                    let
+                        bool =
+                            case JD.decodeValue JD.bool value of
+                                Err _ ->
+                                    False
+
+                                Ok b ->
+                                    b
+
+                        supportedSessions =
+                            model.supportedSessions
+                    in
+                    WrappedModel
+                        { model
+                            | supportedSessions =
+                                { supportedSessions | immersiveAR = Just bool }
+                            , returnFunction = nullReturnFunction
+                        }
                         |> withNoCmd
 
 
@@ -101,6 +226,7 @@ init flags url key =
                 , inPort = webXRIn
                 }
             , webxrIsAvailable = False
+            , supportedSessions = SupportedSessions Nothing Nothing Nothing
             , returnFunction = nullReturnFunction
             , url = url
             , key = key
@@ -135,11 +261,16 @@ update msg model =
                     model |> withNoCmd
 
 
+br : Html Msg
+br =
+    Html.br [] []
+
+
 view : Model -> Document Msg
 view model =
     { title = "WebXR Example"
     , body =
-        [ Html.text <|
+        [ text <|
             if model.webxrIsAvailable then
                 "WebXR IS available."
 

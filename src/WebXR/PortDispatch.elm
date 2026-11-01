@@ -29,10 +29,10 @@ sessionTypeToValue sessionType =
         Inline ->
             JE.string "inline"
 
-        ImmersiveAR ->
+        ImmersiveVR ->
             JE.string "immersive-vr"
 
-        ImmersiveVR ->
+        ImmersiveAR ->
             JE.string "immersive-ar"
 
 

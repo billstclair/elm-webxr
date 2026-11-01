@@ -57,9 +57,11 @@
 
   // As expected by Elm code
   function packageReturn(cmd, value) {
-    return { "command": cmd,
-             "value": value
-           };
+    const res = { "command": cmd,
+                  "value": value
+                };
+    console.log("  packageReturn() =>", res);
+    return res;
   }
 
   // command = { "command": <string>,
@@ -79,7 +81,8 @@
         return err(cmd, 'Browser does not support WebXR')
       } else if (command == 'IsSessionSupported') {
         console.log('IsSessionSuported(', cmd.value, ')');
-        return packageReturn(cmd, isSessionSupported(cmd.value));
+        var val = isSessionSupported(cmd.value);
+        return packageReturn(cmd, val);
       } else if (command == 'RequestSession') {
         console.log('RequestSession(', cmd.value, ')');
         // TODO
@@ -88,12 +91,17 @@
       }
 
       function isSessionSupported(sessionType) {
-        var val;
-        xr.isSessionSupported(sessionType).then(
-          function(res) {
-            val = res;
-          })
-        return val;
+        var val = false;
+        try {
+          xr.isSessionSupported(sessionType).then(
+            function(res) {
+              console.log('xr.isSessionSupported() =>', res);
+              val = res;
+            });
+          return val;
+        } catch (error) {
+          return false;
+        }
       }
     }
   }
