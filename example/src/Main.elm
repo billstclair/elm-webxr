@@ -84,7 +84,12 @@ isAvailableReturnFunction wm v =
                             | webxrIsAvailable = bool
                             , returnFunction = isInlineSessionSupportedReturnFunction
                         }
-                        |> withCmd (WebXR.isSessionSupported model.config Inline)
+                        |> (if bool then
+                                withCmd (WebXR.isSessionSupported model.config Inline)
+
+                            else
+                                withNoCmd
+                           )
 
 
 isInlineSessionSupportedReturnFunction : WrappedModel -> Value -> ( WrappedModel, Cmd Msg )

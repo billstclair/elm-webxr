@@ -97,6 +97,9 @@
             function(res) {
               console.log('xr.isSessionSupported() =>', res);
               val = res;
+            },
+            function(ignoredError) {
+              console.log('xr.isSessionSupported() failed.')
             });
           return val;
         } catch (error) {
