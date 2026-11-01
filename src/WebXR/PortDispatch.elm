@@ -10,7 +10,7 @@
 ----------------------------------------------------------------------
 
 
-module WebXR.PortDispatch exposing (dispatch)
+module WebXR.PortDispatch exposing (dispatch, sessionTypeToValue)
 
 {-| Dispatch to port JavaScript code.
 -}
@@ -18,10 +18,11 @@ module WebXR.PortDispatch exposing (dispatch)
 import Json.Decode as JD exposing (Decoder)
 import Json.Decode.Pipeline as DP exposing (custom, hardcoded, optional, required)
 import Json.Encode as JE exposing (Value)
-import Task exposing (Task)
 import WebXR.Types exposing (Command(..), Config, SessionType(..))
 
 
+{-| Convert a `SessionType` to a `Value` to send to the JS code.
+-}
 sessionTypeToValue : SessionType -> Value
 sessionTypeToValue sessionType =
     case sessionType of

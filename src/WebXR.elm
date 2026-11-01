@@ -21,8 +21,7 @@ module WebXR exposing (isWebXRAvailable, isSessionSupported, requestSession)
 
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
-import Task exposing (Task)
-import WebXR.PortDispatch exposing (dispatch)
+import WebXR.PortDispatch as PortDispatch
 import WebXR.Types exposing (Command(..), Config, SessionType(..))
 
 
@@ -31,16 +30,11 @@ type XRError
     | XRErrorString String
 
 
-type alias SessionTask a =
-    Task XRError a
-
-
 {-| True if the browser supports WebXR.
 -}
-isWebXRAvailable : SessionTask Bool
-isWebXRAvailable =
-    -- TODO
-    Task.fail <| XRErrorString "isWebXRAvailable: TODO"
+isWebXRAvailable : Config msg -> Cmd msg
+isWebXRAvailable config =
+    PortDispatch.dispatch config IsWebXRAvailable JE.null
 
 
 {-| True if the WebXR implementation currently supports the given SessionType.
@@ -48,18 +42,21 @@ isWebXRAvailable =
 If true, `requestSession` will succeed.
 
 -}
-isSessionSupported : SessionType -> SessionTask Bool
-isSessionSupported sessionType =
-    -- TODO
-    Task.fail <| XRErrorString "isSessionSupported: TODO"
-
-
-type alias XRSession =
-    { json : Value }
+isSessionSupported : Config msg -> SessionType -> Cmd msg
+isSessionSupported config sessionType =
+    let
+        value =
+            PortDispatch.sessionTypeToValue sessionType
+    in
+    PortDispatch.dispatch config IsSessionSupported value
 
 
 {-| Create a session of the given type.
 -}
-requestSession : SessionType -> SessionTask XRSession
-requestSession sessionType =
-    Task.fail <| XRErrorString "requestSession: TODO"
+requestSession : Config msg -> SessionType -> Cmd msg
+requestSession config sessionType =
+    let
+        value =
+            PortDispatch.sessionTypeToValue sessionType
+    in
+    PortDispatch.dispatch config RequestSession value
