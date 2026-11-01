@@ -97,6 +97,9 @@ commandToValue command value =
 
                 RequestSession ->
                     ( "RequestSession", value )
+
+                NoWebXRCommand ->
+                    ( "NoWebXRCommand", value )
     in
     WebXRPair str val |> encodeWebXRPair
 

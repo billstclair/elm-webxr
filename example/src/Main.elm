@@ -11,7 +11,6 @@ import Task
 import Time
 import Url exposing (Url)
 import WebXR
-import WebXR.PortDispatch as PortDispatch
 import WebXR.Types exposing (Command(..), Config, SessionType(..))
 
 
@@ -76,7 +75,8 @@ init flags url key =
             , key = key
             }
     in
-    send model isAvailableReturnFunction IsWebXRAvailable JE.null
+    { model | returnFunction = isAvailableReturnFunction }
+        |> withCmd (WebXR.isWebXRAvailable model.config)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -84,16 +84,13 @@ update msg model =
     case msg of
         InPort value ->
             let
-                v =
-                    Debug.log "InPort" value
-
                 ( WrappedModel mdl, cmd ) =
                     model.returnFunction (WrappedModel model) value
             in
-            ( mdl, cmd )
+            mdl |> withCmd cmd
 
         Nop ->
-            ( model, Cmd.none )
+            model |> withNoCmd
 
         OnUrlChange url ->
             model |> withNoCmd
@@ -118,7 +115,6 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    -- TODO
     Sub.batch
         [ model.config.inPort InPort ]
 
@@ -132,10 +128,3 @@ main =
         , onUrlRequest = OnUrlRequest
         , onUrlChange = OnUrlChange
         }
-
-
-send : Model -> ReturnFunction -> Command -> Value -> ( Model, Cmd Msg )
-send model returnFunction command value =
-    ( { model | returnFunction = returnFunction }
-    , PortDispatch.dispatch model.config command value
-    )
