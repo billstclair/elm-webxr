@@ -5,7 +5,7 @@ import Browser.Navigation as Navigation exposing (Key)
 import Cmd.Extra exposing (addCmd, withCmd, withCmds, withNoCmd)
 import Html exposing (Html)
 import Html.Events
-import Json.Decode as JD
+import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
 import Task
 import Time
@@ -36,13 +36,44 @@ nullReturnFunction wm v =
     ( wm, Cmd.none )
 
 
+logValue : String -> Value -> Value
+logValue label value =
+    let
+        json =
+            Debug.log label (JE.encode 0 value)
+    in
+    value
+
+
 isAvailableReturnFunction : WrappedModel -> Value -> ( WrappedModel, Cmd Msg )
 isAvailableReturnFunction wm v =
     let
         vv =
-            Debug.log "  isAvailableReturnFunction" v
+            logValue "isAvailableReturnFunction" v
     in
-    ( wm, Cmd.none )
+    case wm of
+        WrappedModel model ->
+            case WebXR.decodeReturnValue vv of
+                Err { error } ->
+                    let
+                        error2 =
+                            Debug.log "  Error" error
+                    in
+                    wm |> withNoCmd
+
+                Ok { value } ->
+                    let
+                        bool =
+                            case JD.decodeValue JD.bool value of
+                                Err _ ->
+                                    False
+
+                                Ok b ->
+                                    b
+                    in
+                    WrappedModel { model | webxrIsAvailable = bool }
+                        -- TODO
+                        |> withNoCmd
 
 
 type Msg
@@ -108,7 +139,12 @@ view : Model -> Document Msg
 view model =
     { title = "WebXR Example"
     , body =
-        [ Html.text "Hello, World!"
+        [ Html.text <|
+            if model.webxrIsAvailable then
+                "WebXR IS available."
+
+            else
+                "WebXR is NOT available."
         ]
     }
 
