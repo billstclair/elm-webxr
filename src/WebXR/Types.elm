@@ -130,7 +130,7 @@ returnErrorDecoder =
         |> required "error" JD.string
 
 
-{-| Decode the `Value` sent from `Config.inport`.
+{-| Decode the `Value` sent to `Config.inport`.
 -}
 decodeReturnValue : Value -> Result ReturnError ReturnValue
 decodeReturnValue value =
