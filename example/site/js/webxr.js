@@ -19,6 +19,13 @@
 
   function subscribe(app, args) {
     if (!args) args = {};
+    // From https://www.google.com/search?q=js+sleep
+    const sleepPromise = ms => new Promise(resolve => setTimeout(resolve, ms));
+    async function sleep(ms) {
+      await sleepPromise(ms);
+    }
+    WebXR.sleep = sleep;
+
     portNames = args.portNames;
     if (!portNames) {
       portNames = ['webXROut', 'webXRIn']
@@ -92,15 +99,25 @@
 
       function isSessionSupported(sessionType) {
         var val = false;
+        var done = false;
         try {
           xr.isSessionSupported(sessionType).then(
             function(res) {
               console.log('xr.isSessionSupported() =>', res);
               val = res;
+              done = true;
             },
             function(ignoredError) {
               console.log('xr.isSessionSupported() failed.')
+              done = true;
             });
+
+          // temporary, for testing
+          return val;
+
+          while (!done) {
+            WebXR.sleep(1);
+          }
           return val;
         } catch (error) {
           return false;
