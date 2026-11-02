@@ -19,6 +19,7 @@
 
   function subscribe(app, args) {
     if (!args) args = {};
+
     // From https://www.google.com/search?q=js+sleep
     const sleepPromise = ms => new Promise(resolve => setTimeout(resolve, ms));
     async function sleep(ms) {
