@@ -3,8 +3,8 @@ port module Main exposing (..)
 import Browser exposing (Document, UrlRequest(..))
 import Browser.Navigation as Navigation exposing (Key)
 import Cmd.Extra exposing (addCmd, withCmd, withCmds, withNoCmd)
-import Html exposing (Html, div, table, td, text, tr)
-import Html.Attributes exposing (style)
+import Html exposing (Html, a, div, p, table, td, text, tr)
+import Html.Attributes exposing (href, style)
 import Html.Events
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -276,27 +276,33 @@ view : Model -> Document Msg
 view model =
     { title = "WebXR Example"
     , body =
-        [ text <|
-            if model.webxrIsAvailable then
-                "WebXR IS available."
+        [ p []
+            [ text <|
+                if model.webxrIsAvailable then
+                    "WebXR IS available."
 
-            else
-                "WebXR is NOT available."
-        , if not model.webxrIsAvailable then
-            text ""
+                else
+                    "WebXR is NOT available."
+            , if not model.webxrIsAvailable then
+                text ""
 
-          else
-            let
-                { inline, immersiveVR, immersiveAR } =
-                    model.supportedSessions
-            in
-            div []
-                [ table []
-                    [ supportedSessionRow "inline:" inline
-                    , supportedSessionRow "immersizeVR:" immersiveVR
-                    , supportedSessionRow "immersizeAR:" immersiveAR
+              else
+                let
+                    { inline, immersiveVR, immersiveAR } =
+                        model.supportedSessions
+                in
+                div []
+                    [ table []
+                        [ supportedSessionRow "inline:" inline
+                        , supportedSessionRow "immersizeVR:" immersiveVR
+                        , supportedSessionRow "immersizeAR:" immersiveAR
+                        ]
                     ]
-                ]
+            ]
+        , p []
+            [ a [ href "https://github.com/billstclair/elm-webxr" ]
+                [ text "GitHub" ]
+            ]
         ]
     }
 
