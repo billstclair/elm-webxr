@@ -292,28 +292,23 @@ view model =
             in
             div []
                 [ table []
-                    [ tr []
-                        [ td [ style "text-align" "right" ]
-                            [ text "inline:" ]
-                        , td []
-                            [ viewSupportedSession inline ]
-                        ]
-                    , tr []
-                        [ td [ style "text-align" "right" ]
-                            [ text "immersiveVR:" ]
-                        , td []
-                            [ viewSupportedSession immersiveVR ]
-                        ]
-                    , tr []
-                        [ td [ style "text-align" "right" ]
-                            [ text "immersiveAR:" ]
-                        , td []
-                            [ viewSupportedSession immersiveAR ]
-                        ]
+                    [ supportedSessionRow "inline:" inline
+                    , supportedSessionRow "immersizeVR:" immersiveVR
+                    , supportedSessionRow "immersizeAR:" immersiveAR
                     ]
                 ]
         ]
     }
+
+
+supportedSessionRow : String -> Maybe Bool -> Html msg
+supportedSessionRow label maybeValue =
+    tr []
+        [ td [ style "text-align" "right" ]
+            [ text label ]
+        , td []
+            [ viewSupportedSession maybeValue ]
+        ]
 
 
 viewSupportedSession : Maybe Bool -> Html msg
