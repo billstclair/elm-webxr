@@ -47,10 +47,7 @@
         var cmd = ports[portNames[0]];
         if (cmd) {
           cmd.subscribe(function(command) {
-            var returnValue = commandDispatch(command);
-            if (returnValue != undefined) {
-              sub.send(returnValue);
-            }
+            commandDispatch(sub, command);
           });
         }
       }
@@ -68,60 +65,42 @@
     const res = { "command": cmd,
                   "value": value
                 };
-    console.log("  packageReturn() =>", res);
     return res;
   }
 
   // command = { "command": <string>,
   //             "value": <value>
   //           }
-  function commandDispatch(cmd) {
+  function commandDispatch(sub, cmd) {
     if (typeof(cmd) != 'object') {
-      return err(cmd, 'cmd not an object');
+      sub.send(err(cmd, 'cmd not an object'));
     }
     var command = cmd.command;
     if (command == "IsWebXRAvailable") {
-      return packageReturn(cmd, navigator.xr ? true : false);
+      sub.send(packageReturn(cmd, navigator.xr ? true : false));
     } else {
       var xr = navigator.xr;
       if (!xr) {
-        console.log('Browser does not support WebXR');
-        return err(cmd, 'Browser does not support WebXR')
+        sub.send(err(cmd, 'Browser does not support WebXR'));
       } else if (command == 'IsSessionSupported') {
-        console.log('IsSessionSuported(', cmd.value, ')');
-        var val = isSessionSupported(cmd.value);
-        return packageReturn(cmd, val);
+        isSessionSupported(sub, cmd, cmd.value);
       } else if (command == 'RequestSession') {
-        console.log('RequestSession(', cmd.value, ')');
-        // TODO
         return err(cmd, 'RequestSession not yet implemented');
         //return xr.requestSession(cmd.value);
       }
 
-      function isSessionSupported(sessionType) {
+      function isSessionSupported(sub, cmd, sessionType) {
         var val = false;
-        var done = false;
         try {
           xr.isSessionSupported(sessionType).then(
             function(res) {
-              console.log('xr.isSessionSupported() =>', res);
-              val = res;
-              done = true;
+              sub.send(packageReturn(cmd, res));
             },
-            function(ignoredError) {
-              console.log('xr.isSessionSupported() failed.')
-              done = true;
+            function(error) {
+              sub.send(err(cmd, 'xr.isSessionSupported() failed:' + error));
             });
-
-          // temporary, for testing
-          return val;
-
-          while (!done) {
-            WebXR.sleep(1);
-          }
-          return val;
         } catch (error) {
-          return false;
+          sub.send(err(cmd, 'xr.isSessionSupported error: ' + error));
         }
       }
     }
