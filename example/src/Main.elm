@@ -3,7 +3,8 @@ port module Main exposing (..)
 import Browser exposing (Document, UrlRequest(..))
 import Browser.Navigation as Navigation exposing (Key)
 import Cmd.Extra exposing (addCmd, withCmd, withCmds, withNoCmd)
-import Html exposing (Html, text)
+import Html exposing (Html, div, table, td, text, tr)
+import Html.Attributes exposing (style)
 import Html.Events
 import Json.Decode as JD exposing (Decoder)
 import Json.Encode as JE exposing (Value)
@@ -281,8 +282,53 @@ view model =
 
             else
                 "WebXR is NOT available."
+        , if not model.webxrIsAvailable then
+            text ""
+
+          else
+            let
+                { inline, immersiveVR, immersiveAR } =
+                    model.supportedSessions
+            in
+            div []
+                [ table []
+                    [ tr []
+                        [ td [ style "text-align" "right" ]
+                            [ text "inline:" ]
+                        , td []
+                            [ viewSupportedSession inline ]
+                        ]
+                    , tr []
+                        [ td [ style "text-align" "right" ]
+                            [ text "immersiveVR:" ]
+                        , td []
+                            [ viewSupportedSession immersiveVR ]
+                        ]
+                    , tr []
+                        [ td [ style "text-align" "right" ]
+                            [ text "immersiveAR:" ]
+                        , td []
+                            [ viewSupportedSession immersiveAR ]
+                        ]
+                    ]
+                ]
         ]
     }
+
+
+viewSupportedSession : Maybe Bool -> Html msg
+viewSupportedSession maybeBool =
+    case maybeBool of
+        Nothing ->
+            text "Unknown"
+
+        Just bool ->
+            text <|
+                if bool then
+                    "Yes"
+
+                else
+                    "No"
 
 
 subscriptions : Model -> Sub Msg
