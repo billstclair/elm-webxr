@@ -294,8 +294,8 @@ view model =
                 div []
                     [ table []
                         [ supportedSessionRow "inline:" inline
-                        , supportedSessionRow "immersizeVR:" immersiveVR
-                        , supportedSessionRow "immersizeAR:" immersiveAR
+                        , supportedSessionRow "immersiveVR:" immersiveVR
+                        , supportedSessionRow "immersiveAR:" immersiveAR
                         ]
                     ]
             ]
