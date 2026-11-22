@@ -267,9 +267,14 @@ update msg model =
                     model |> withNoCmd
 
 
-br : Html Msg
+br : Html msg
 br =
     Html.br [] []
+
+
+h2 : String -> Html msg
+h2 string =
+    Html.h2 [] [ text string ]
 
 
 view : Model -> Document Msg
@@ -277,7 +282,8 @@ view model =
     { title = "WebXR Example"
     , body =
         [ p []
-            [ text <|
+            [ h2 "WebXR Example"
+            , text <|
                 if model.webxrIsAvailable then
                     "WebXR IS available."
 
